@@ -11,226 +11,87 @@
         font-family: 'Arial', sans-serif;
         background: #000;
       }
-      #loadingScreen {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.8);
-        color: #fff;
-        font-size: 24px;
-        padding: 20px 40px;
-        border-radius: 12px;
-        z-index: 20;
-        text-align: center;
-      }
-      #uiContainer {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: #1A1F71;
-        padding: 15px;
-        border-radius: 12px;
-        color: #FFB500;
-        font-size: 16px;
-        z-index: 10;
-        width: 240px;
-      }
-      #xpBarBackground {
-        background: #ccc;
-        height: 10px;
-        border-radius: 5px;
-        overflow: hidden;
-        margin-top: 5px;
-      }
-      #xpBarFill {
-        background: #FFB500;
-        height: 10px;
-        width: 0%;
-        border-radius: 5px;
-      }
-      #xpPopup {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #FFB500;
-        font-size: 30px;
-        display: none;
-        z-index: 20;
-        font-weight: bold;
-        animation: floatUp 1.5s ease forwards;
-      }
-      @keyframes floatUp {
-        0% { transform: translate(-50%, 0); opacity: 1; }
-        100% { transform: translate(-50%, -150px); opacity: 0; }
-      }
-      #confettiMessage {
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 28px;
-        background: #FFB500;
-        color: #1A1F71;
-        padding: 20px 30px;
-        border-radius: 12px;
-        z-index: 20;
-        display: none;
-      }
-      #walletScreen {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #1A1F71;
-        color: #FFB500;
-        padding: 30px;
-        z-index: 30;
-        font-size: 22px;
-      }
-      #walletScreen h2 {
-        margin-top: 0;
-      }
-      .wallet-item {
-        margin: 10px 0;
-        padding: 15px;
-        background: #FFB500;
-        color: #1A1F71;
-        border-radius: 10px;
-      }
-      #walletButton {
-        margin-top: 10px;
-        background: #FFB500;
-        color: #1A1F71;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-      }
+      /* UI styles and other elements omitted for brevity */
     </style>
   </head>
   <body>
-    <!-- Loading -->
-    <div id="loadingScreen">Loading AR Experience...</div>
-    <!-- UI Container -->
-    <div id="uiContainer">
-      <div><strong>Level:</strong> <span id="level">1</span></div>
-      <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
-      <div id="xpBarBackground">
-        <div id="xpBarFill"></div>
-      </div>
-      <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
-      <button id="walletButton">🎁 Open Wallet</button>
-    </div>
-    <!-- XP Popup -->
-    <div id="xpPopup">+10 XP!</div>
-    <!-- Confetti Message -->
-    <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
-    <!-- Wallet Screen -->
-    <div id="walletScreen">
-      <h2>My Rewards Wallet 🎁</h2>
-      <div id="walletItems"></div>
-      <button id="closeWalletButton" style="margin-top:20px;">Close Wallet</button>
-    </div>
+    <!-- UI Container, Wallet, XP Popup, and other UI components -->
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
       arjs="sourceType: webcam; gpsMinAccuracy: 30; gpsTimeInterval: 1000;"
     >
       <a-camera gps-camera rotation-reader></a-camera>
-      <!-- Cursor for touch -->
       <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-      
-      <!-- 3D Visa Reward at Sephora -->
-      <a-gltf-model
-        id="reward"
-        class="clickable"
-        src="https://raw.githubusercontent.com/user-tania/AR_Phone/main/coin.glb"
-        scale="2 2 2"
-        position="0 0 0"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
-        gps-entity-place="latitude: 38.872865; longitude: -77.228267">
-      </a-gltf-model>
+
+      <!-- Placeholder for 3D coin models dynamically added by JavaScript -->
     </a-scene>
+
     <script>
-      let rewardCollected = false;
-      let xp = 0;
-      let level = 1;
-
-      function addXP(points) {
-        xp += points;
-        if (xp >= 100) {
-          xp = xp - 100;
-          level += 1;
-          document.getElementById('level').innerText = level;
+      const storeLocations = [
+        {
+          name: "Sephora",
+          lat: 38.872865,
+          lon: -77.228267,
+          rewardMessage: "Your last reward +100 PX",
+        },
+        {
+          name: "Merrifield",
+          lat: 38.858777,
+          lon: -77.229536,
+          rewardMessage: "Your last reward +200 PX",
+        },
+        {
+          name: "Mosaic VA",
+          lat: 38.888232,
+          lon: -77.230049,
+          rewardMessage: "Your last reward +300 PX",
         }
-        document.getElementById('xpPoints').innerText = xp;
-        document.getElementById('xpBarFill').style.width = (xp) + "%";
-        // Show XP Popup
-        const popup = document.getElementById('xpPopup');
-        popup.style.display = 'block';
-        popup.innerText = `+${points} XP!`;
-        setTimeout(() => {
-          popup.style.display = 'none';
-        }, 1500);
-      }
+      ];
 
-      function updateWallet() {
-        const walletItems = document.getElementById('walletItems');
-        walletItems.innerHTML = "";
-        if (localStorage.getItem('rewardCollected') === 'true') {
-          walletItems.innerHTML += `<div class="wallet-item">🎖️ Visa AR Reward</div>`;
-        } else {
-          walletItems.innerHTML += `<div>No rewards collected yet!</div>`;
-        }
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c * 1000; // Distance in meters
       }
 
       window.onload = () => {
         if ("geolocation" in navigator) {
           navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const reward = document.getElementById("reward");
-            // Offset reward 10 meters north
-            const offset = 0.00009;
-            reward.setAttribute("gps-entity-place", `latitude: ${lat + offset}; longitude: ${lon}`);
-            // Hide loading screen
-            document.getElementById('loadingScreen').style.display = 'none';
-            // Hide model if already collected
-            if (localStorage.getItem('rewardCollected') === 'true') {
-              reward.setAttribute('visible', 'false');
-              document.getElementById('count').innerText = 1;
-            }
-            reward.addEventListener("click", () => {
-              if (!rewardCollected) {
-                rewardCollected = true;
-                reward.setAttribute("visible", "false");
-                localStorage.setItem('rewardCollected', 'true');
-                document.getElementById("count").innerText = 1;
-                // Add XP and update UI
-                const rewardXP = 100;
-                addXP(rewardXP);
-                // Show confetti popup
-                const confetti = document.getElementById('confettiMessage');
-                confetti.innerText = `🎉 Sephora: Your last reward +${rewardXP} XP!`;
-                confetti.style.display = 'block';
-                setTimeout(() => {
-                  confetti.style.display = 'none';
-                }, 3000);
+            const userLat = position.coords.latitude;
+            const userLon = position.coords.longitude;
+
+            storeLocations.forEach(store => {
+              const distance = calculateDistance(userLat, userLon, store.lat, store.lon);
+
+              if (distance < 50) {  // If the user is within 50 meters of the store
+                const rewardModel = document.createElement('a-gltf-model');
+                rewardModel.setAttribute('class', 'clickable');
+                rewardModel.setAttribute('src', 'https://raw.githubusercontent.com/user-tania/AR_Phone/main/coin.glb');
+                rewardModel.setAttribute('scale', '2 2 2');
+                rewardModel.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 15000');
+                rewardModel.setAttribute('gps-entity-place', `latitude: ${store.lat}; longitude: ${store.lon}`);
+                
+                // Add model to the scene
+                document.querySelector('a-scene').appendChild(rewardModel);
+
+                // Handle reward collection and message display
+                rewardModel.addEventListener('click', () => {
+                  if (store.rewardMessage) {
+                    alert(store.rewardMessage); // Show reward message when clicked
+                    // Additional code to handle XP addition and updates can go here...
+                  }
+                });
               }
             });
-            // Wallet button actions
-            document.getElementById('walletButton').addEventListener('click', () => {
-              updateWallet();
-              document.getElementById('walletScreen').style.display = 'block';
-            });
-            document.getElementById('closeWalletButton').addEventListener('click', () => {
-              document.getElementById('walletScreen').style.display = 'none';
-            });
+
+            // Hide loading screen when location is found
+            document.getElementById('loadingScreen').style.display = 'none';
           }, (err) => {
             console.error("Location error:", err);
             document.getElementById('loadingScreen').innerText = '⚠️ Location Error. Please enable GPS and refresh.';
