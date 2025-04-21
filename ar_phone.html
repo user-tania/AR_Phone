@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visa AR Rewards Gamified (with Rewards Wallet!)</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+        background: #000;
+      }
+      #loadingScreen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.8);
+        color: #fff;
+        font-size: 24px;
+        padding: 20px 40px;
+        border-radius: 12px;
+        z-index: 20;
+        text-align: center;
+      }
+      #uiContainer {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: #1A1F71;
+        padding: 15px;
+        border-radius: 12px;
+        color: #FFB500;
+        font-size: 16px;
+        z-index: 10;
+        width: 240px;
+      }
+      #xpBarBackground {
+        background: #ccc;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 5px;
+      }
+      #xpBarFill {
+        background: #FFB500;
+        height: 10px;
+        width: 0%;
+        border-radius: 5px;
+      }
+      #xpPopup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #FFB500;
+        font-size: 30px;
+        display: none;
+        z-index: 20;
+        font-weight: bold;
+        animation: floatUp 1.5s ease forwards;
+      }
+      @keyframes floatUp {
+        0% { transform: translate(-50%, 0); opacity: 1; }
+        100% { transform: translate(-50%, -150px); opacity: 0; }
+      }
+      #confettiMessage {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        background: #FFB500;
+        color: #1A1F71;
+        padding: 20px 30px;
+        border-radius: 12px;
+        z-index: 20;
+        display: none;
+      }
+      #walletScreen {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1A1F71;
+        color: #FFB500;
+        padding: 30px;
+        z-index: 30;
+        font-size: 22px;
+      }
+      #walletScreen h2 {
+        margin-top: 0;
+      }
+      .wallet-item {
+        margin: 10px 0;
+        padding: 15px;
+        background: #FFB500;
+        color: #1A1F71;
+        border-radius: 10px;
+      }
+      #walletButton {
+        margin-top: 10px;
+        background: #FFB500;
+        color: #1A1F71;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading -->
+    <div id="loadingScreen">Loading AR Experience...</div>
+    <!-- UI Container -->
+    <div id="uiContainer">
+      <div><strong>Level:</strong> <span id="level">1</span></div>
+      <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
+      <div id="xpBarBackground">
+        <div id="xpBarFill"></div>
+      </div>
+      <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
+      <button id="walletButton">🎁 Open Wallet</button>
+    </div>
+    <!-- XP Popup -->
+    <div id="xpPopup">+10 XP!</div>
+    <!-- Confetti Message -->
+    <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
+    <!-- Wallet Screen -->
+    <div id="walletScreen">
+      <h2>My Rewards Wallet 🎁</h2>
+      <div id="walletItems"></div>
+      <button id="closeWalletButton" style="margin-top:20px;">Close Wallet</button>
+    </div>
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="sourceType: webcam; gpsMinAccuracy: 30; gpsTimeInterval: 1000;"
+    >
+      <a-camera gps-camera rotation-reader></a-camera>
+      <!-- Cursor for touch -->
+      <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+      <!-- 3D Visa Reward -->
+      <a-gltf-model
+        id="reward"
+        class="clickable"
+        src="https://myrow11.github.io/3d/visa.glb"
+        scale="2 2 2"
+        look-at="[gps-camera]"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
+        gps-entity-place="latitude: 0; longitude: 0">
+      </a-gltf-model>
+    </a-scene>
+    <script>
+      let rewardCollected = false;
+      let xp = 0;
+      let level = 1;
+      function addXP(points) {
+        xp += points;
+        if (xp >= 100) {
+          xp = xp - 100;
+          level += 1;
+          document.getElementById('level').innerText = level;
+        }
+        document.getElementById('xpPoints').innerText = xp;
+        document.getElementById('xpBarFill').style.width = (xp) + "%";
+        // Show XP Popup
+        const popup = document.getElementById('xpPopup');
+        popup.style.display = 'block';
+        popup.innerText = `+${points} XP!`;
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 1500);
+      }
+      function updateWallet() {
+        const walletItems = document.getElementById('walletItems');
+        walletItems.innerHTML = "";
+        if (localStorage.getItem('rewardCollected') === 'true') {
+          walletItems.innerHTML += `<div class="wallet-item">🎖️ Visa AR Reward</div>`;
+        } else {
+          walletItems.innerHTML += `<div>No rewards collected yet!</div>`;
+        }
+      }
+      window.onload = () => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const reward = document.getElementById("reward");
+            // Offset reward 10 meters north
+            const offset = 0.00009;
+            reward.setAttribute("gps-entity-place", `latitude: ${lat + offset}; longitude: ${lon}`);
+            // Hide loading screen
+            document.getElementById('loadingScreen').style.display = 'none';
+            // Hide model if already collected
+            if (localStorage.getItem('rewardCollected') === 'true') {
+              reward.setAttribute('visible', 'false');
+              document.getElementById('count').innerText = 1;
+            }
+            reward.addEventListener("click", () => {
+              if (!rewardCollected) {
+                rewardCollected = true;
+                reward.setAttribute("visible", "false");
+                localStorage.setItem('rewardCollected', 'true');
+                document.getElementById("count").innerText = 1;
+                // Add XP and update UI
+                addXP(10);
+                // Show confetti popup
+                const confetti = document.getElementById('confettiMessage');
+                confetti.style.display = 'block';
+                setTimeout(() => {
+                  confetti.style.display = 'none';
+                }, 3000);
+              }
+            });
+            // Wallet button actions
+            document.getElementById('walletButton').addEventListener('click', () => {
+              updateWallet();
+              document.getElementById('walletScreen').style.display = 'block';
+            });
+            document.getElementById('closeWalletButton').addEventListener('click', () => {
+              document.getElementById('walletScreen').style.display = 'none';
+            });
+          }, (err) => {
+            console.error("Location error:", err);
+            document.getElementById('loadingScreen').innerText = '⚠️ Location Error. Please enable GPS and refresh.';
+          }, {
+            enableHighAccuracy: true
+          });
+        } else {
+          document.getElementById('loadingScreen').innerText = '⚠️ Geolocation not supported by your browser.';
+        }
+      };
+    </script>
+  </body>
+</html>
