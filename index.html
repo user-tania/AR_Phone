@@ -144,21 +144,23 @@
       <a-camera gps-camera rotation-reader></a-camera>
       <!-- Cursor for touch -->
       <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-      <!-- 3D Visa Reward -->
+      
+      <!-- 3D Visa Reward at Sephora -->
       <a-gltf-model
         id="reward"
         class="clickable"
         src="https://raw.githubusercontent.com/user-tania/AR_Phone/main/coin.glb"
         scale="2 2 2"
-        look-at="[gps-camera]"
+        position="0 0 0"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
-        gps-entity-place="latitude: 0; longitude: 0">
+        gps-entity-place="latitude: 38.872865; longitude: -77.228267">
       </a-gltf-model>
     </a-scene>
     <script>
       let rewardCollected = false;
       let xp = 0;
       let level = 1;
+
       function addXP(points) {
         xp += points;
         if (xp >= 100) {
@@ -176,6 +178,7 @@
           popup.style.display = 'none';
         }, 1500);
       }
+
       function updateWallet() {
         const walletItems = document.getElementById('walletItems');
         walletItems.innerHTML = "";
@@ -185,6 +188,7 @@
           walletItems.innerHTML += `<div>No rewards collected yet!</div>`;
         }
       }
+
       window.onload = () => {
         if ("geolocation" in navigator) {
           navigator.geolocation.getCurrentPosition((position) => {
@@ -208,9 +212,11 @@
                 localStorage.setItem('rewardCollected', 'true');
                 document.getElementById("count").innerText = 1;
                 // Add XP and update UI
-                addXP(10);
+                const rewardXP = 100;
+                addXP(rewardXP);
                 // Show confetti popup
                 const confetti = document.getElementById('confettiMessage');
+                confetti.innerText = `🎉 Sephora: Your last reward +${rewardXP} XP!`;
                 confetti.style.display = 'block';
                 setTimeout(() => {
                   confetti.style.display = 'none';
@@ -237,4 +243,3 @@
       };
     </script>
   </body>
-</html>
