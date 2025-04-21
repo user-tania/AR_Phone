@@ -11,11 +11,65 @@
         font-family: 'Arial', sans-serif;
         background: #000;
       }
-      /* UI styles and other elements omitted for brevity */
+
+      #loadingScreen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.8);
+        color: #fff;
+        font-size: 24px;
+        padding: 20px 40px;
+        border-radius: 12px;
+        z-index: 20;
+        text-align: center;
+      }
+      #walletScreen {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1A1F71;
+        color: #FFB500;
+        padding: 30px;
+        z-index: 30;
+        font-size: 22px;
+      }
+      #walletScreen h2 {
+        margin-top: 0;
+      }
+      .wallet-item {
+        margin: 10px 0;
+        padding: 15px;
+        background: #FFB500;
+        color: #1A1F71;
+        border-radius: 10px;
+      }
+      #walletButton {
+        margin-top: 10px;
+        background: #FFB500;
+        color: #1A1F71;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
-    <!-- UI Container, Wallet, XP Popup, and other UI components -->
+    <!-- Loading -->
+    <div id="loadingScreen">Loading AR Experience...</div>
+    <!-- Rewards Wallet Screen -->
+    <div id="walletScreen">
+      <h2>My Rewards Wallet 🎁</h2>
+      <div id="walletItems"></div>
+      <button id="closeWalletButton" style="margin-top:20px;">Close Wallet</button>
+    </div>
+
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
@@ -34,18 +88,21 @@
           lat: 38.872865,
           lon: -77.228267,
           rewardMessage: "Your last reward +100 PX",
+          rewardId: "rewardSephora"
         },
         {
           name: "Merrifield",
           lat: 38.858777,
           lon: -77.229536,
           rewardMessage: "Your last reward +200 PX",
+          rewardId: "rewardMerrifield"
         },
         {
           name: "Mosaic VA",
           lat: 38.888232,
           lon: -77.230049,
           rewardMessage: "Your last reward +300 PX",
+          rewardId: "rewardMosaic"
         }
       ];
 
@@ -58,6 +115,22 @@
                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c * 1000; // Distance in meters
+      }
+
+      function updateWallet() {
+        const walletItems = document.getElementById('walletItems');
+        walletItems.innerHTML = "";
+
+        // Check stored rewards and show them
+        if (localStorage.getItem('rewardSephora') === 'true') {
+          walletItems.innerHTML += `<div class="wallet-item">🎖️ Sephora Reward</div>`;
+        }
+        if (localStorage.getItem('rewardMerrifield') === 'true') {
+          walletItems.innerHTML += `<div class="wallet-item">🎖️ Merrifield Reward</div>`;
+        }
+        if (localStorage.getItem('rewardMosaic') === 'true') {
+          walletItems.innerHTML += `<div class="wallet-item">🎖️ Mosaic VA Reward</div>`;
+        }
       }
 
       window.onload = () => {
@@ -84,7 +157,9 @@
                 rewardModel.addEventListener('click', () => {
                   if (store.rewardMessage) {
                     alert(store.rewardMessage); // Show reward message when clicked
-                    // Additional code to handle XP addition and updates can go here...
+                    // Mark the reward as collected in localStorage
+                    localStorage.setItem(store.rewardId, 'true');
+                    updateWallet(); // Update the wallet screen
                   }
                 });
               }
@@ -101,6 +176,16 @@
         } else {
           document.getElementById('loadingScreen').innerText = '⚠️ Geolocation not supported by your browser.';
         }
+
+        // Wallet button actions
+        document.getElementById('walletButton').addEventListener('click', () => {
+          updateWallet();
+          document.getElementById('walletScreen').style.display = 'block';
+        });
+        
+        document.getElementById('closeWalletButton').addEventListener('click', () => {
+          document.getElementById('walletScreen').style.display = 'none';
+        });
       };
     </script>
   </body>
