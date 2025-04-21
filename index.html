@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Visa AR Rewards Gamified (with Rewards Wallet!)</title>
+    <title>Visa AR Rewards Gamified (with Rewards Wallet & Leaderboard!)</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
     <style>
@@ -11,7 +11,6 @@
         font-family: 'Arial', sans-serif;
         background: #000;
       }
-
       #loadingScreen {
         position: absolute;
         top: 50%;
@@ -25,23 +24,62 @@
         z-index: 20;
         text-align: center;
       }
-
-      #walletButton {
+      #uiContainer {
         position: absolute;
         top: 20px;
-        right: 20px;
-        z-index: 100;
+        left: 20px;
+        background: #1A1F71;
+        padding: 15px;
+        border-radius: 12px;
+        color: #FFB500;
+        font-size: 16px;
+        z-index: 10;
+        width: 240px;
+      }
+      #xpBarBackground {
+        background: #ccc;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 5px;
+      }
+      #xpBarFill {
+        background: #FFB500;
+        height: 10px;
+        width: 0%;
+        border-radius: 5px;
+      }
+      #xpPopup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #FFB500;
+        font-size: 30px;
+        display: none;
+        z-index: 20;
+        font-weight: bold;
+        animation: floatUp 1.5s ease forwards;
+      }
+      @keyframes floatUp {
+        0% { transform: translate(-50%, 0); opacity: 1; }
+        100% { transform: translate(-50%, -150px); opacity: 0; }
+      }
+      #confettiMessage {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
         background: #FFB500;
         color: #1A1F71;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: bold;
+        padding: 20px 30px;
+        border-radius: 12px;
+        z-index: 20;
+        display: none;
       }
-
-      #walletScreen {
+      #walletScreen,
+      #leaderboardScreen {
         display: none;
         position: absolute;
         top: 0;
@@ -54,11 +92,10 @@
         z-index: 30;
         font-size: 22px;
       }
-
-      #walletScreen h2 {
+      #walletScreen h2,
+      #leaderboardScreen h2 {
         margin-top: 0;
       }
-
       .wallet-item {
         margin: 10px 0;
         padding: 15px;
@@ -66,9 +103,8 @@
         color: #1A1F71;
         border-radius: 10px;
       }
-
-      #closeWalletButton {
-        margin-top: 20px;
+      #walletButton, #leaderboardButton {
+        margin-top: 10px;
         background: #FFB500;
         color: #1A1F71;
         padding: 10px 15px;
@@ -77,22 +113,90 @@
         font-size: 16px;
         cursor: pointer;
       }
+ 
+      /* Deals Notification */
+      #dealsNotification {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: #FFB500;
+        color: #1A1F71;
+        padding: 15px 20px;
+        border-radius: 10px;
+        z-index: 25;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 16px;
+        display: none;
+      }
+      #dealsHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      #dealsHeader button {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: #1A1F71;
+      }
+ 
+      #leaderboardList div {
+        margin: 10px 0;
+        padding: 10px;
+        background: #FFB500;
+        color: #1A1F71;
+        border-radius: 10px;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
     <!-- Loading -->
     <div id="loadingScreen">Loading AR Experience...</div>
-
-    <!-- Wallet Button -->
-    <button id="walletButton">🎁 Open Wallet</button>
-
-    <!-- Rewards Wallet Screen -->
+ 
+    <!-- UI Container -->
+    <div id="uiContainer">
+      <div><strong>Level:</strong> <span id="level">1</span></div>
+      <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
+      <div id="xpBarBackground"><div id="xpBarFill"></div></div>
+      <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
+      <button id="walletButton">🎁 Open Wallet</button>
+      <button id="leaderboardButton">🏆 Open Leaderboard</button>
+    </div>
+ 
+    <!-- XP Popup -->
+    <div id="xpPopup">+10 XP!</div>
+ 
+    <!-- Confetti Message -->
+    <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
+ 
+    <!-- Wallet Screen -->
     <div id="walletScreen">
       <h2>My Rewards Wallet 🎁</h2>
       <div id="walletItems"></div>
-      <button id="closeWalletButton">Close Wallet</button>
+      <button id="closeWalletButton" style="margin-top:20px;">Close Wallet</button>
     </div>
-
+ 
+    <!-- Leaderboard Screen -->
+    <div id="leaderboardScreen">
+      <h2>🏆 Leaderboard</h2>
+      <div id="leaderboardList"></div>
+      <button id="closeLeaderboardButton" style="margin-top:20px;">Close Leaderboard</button>
+    </div>
+ 
+    <!-- Deals Notification -->
+    <div id="dealsNotification">
+      <div id="dealsHeader">
+        🔔 Deals Near You
+        <button id="closeDeals" title="Dismiss">✖</button>
+      </div>
+      <ul id="dealsList"></ul>
+    </div>
+ 
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
@@ -100,108 +204,143 @@
     >
       <a-camera gps-camera rotation-reader></a-camera>
       <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+      <a-gltf-model
+        id="reward"
+        class="clickable"
+        src="https://myrow11.github.io/3d/visa.glb"
+        scale="2 2 2"
+        look-at="[gps-camera]"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
+        gps-entity-place="latitude: 0; longitude: 0">
+      </a-gltf-model>
     </a-scene>
-
+ 
     <script>
-      const storeLocations = [
-        {
-          name: "Sephora",
-          lat: 38.872865,
-          lon: -77.228267,
-          rewardMessage: "Your last reward +100 PX",
-          rewardId: "rewardSephora"
-        },
-        {
-          name: "Merrifield",
-          lat: 38.858777,
-          lon: -77.229536,
-          rewardMessage: "Your last reward +200 PX",
-          rewardId: "rewardMerrifield"
-        },
-        {
-          name: "Mosaic VA",
-          lat: 38.888232,
-          lon: -77.230049,
-          rewardMessage: "Your last reward +300 PX",
-          rewardId: "rewardMosaic"
+      let rewardCollected = false;
+      let xp = 0;
+      let level = 1;
+ 
+      function addXP(points) {
+        xp += points;
+        if (xp >= 100) {
+          xp -= 100;
+          level += 1;
+          document.getElementById('level').innerText = level;
         }
-      ];
-
-      function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c * 1000;
+        document.getElementById('xpPoints').innerText = xp;
+        document.getElementById('xpBarFill').style.width = xp + "%";
+        const popup = document.getElementById('xpPopup');
+        popup.style.display = 'block';
+        popup.innerText = `+${points} XP!`;
+        setTimeout(() => {
+          popup.style.display = 'none';
+        }, 1500);
       }
-
+ 
       function updateWallet() {
         const walletItems = document.getElementById('walletItems');
         walletItems.innerHTML = "";
-
-        if (localStorage.getItem('rewardSephora') === 'true') {
-          walletItems.innerHTML += `<div class="wallet-item">🎖️ Sephora Reward</div>`;
-        }
-        if (localStorage.getItem('rewardMerrifield') === 'true') {
-          walletItems.innerHTML += `<div class="wallet-item">🎖️ Merrifield Reward</div>`;
-        }
-        if (localStorage.getItem('rewardMosaic') === 'true') {
-          walletItems.innerHTML += `<div class="wallet-item">🎖️ Mosaic VA Reward</div>`;
+        if (localStorage.getItem('rewardCollected') === 'true') {
+          walletItems.innerHTML += `<div class="wallet-item">🎖️ Visa AR Reward</div>`;
+        } else {
+          walletItems.innerHTML += `<div>No rewards collected yet!</div>`;
         }
       }
-
+ 
+      function updateLeaderboard() {
+        const leaderboard = [
+          { name: "Alice", xp: 180 },
+          { name: "Bob", xp: 120 },
+          { name: "You", xp: xp },
+          { name: "Charlie", xp: 70 },
+        ];
+        leaderboard.sort((a, b) => b.xp - a.xp);
+        const list = document.getElementById('leaderboardList');
+        list.innerHTML = "";
+        leaderboard.forEach(player => {
+          const entry = document.createElement('div');
+          entry.textContent = `${player.name}: ${player.xp} XP`;
+          list.appendChild(entry);
+        });
+      }
+ 
+      function getFallbackDeals() {
+        return [
+          "💸 10% off at CoffeeExpress",
+          "🎮 2x Rewards at GameZone",
+          "🍔 Free drink with Visa at BurgerLab"
+        ];
+      }
+ 
+      function showNearbyDeals(deals) {
+        const list = document.getElementById('dealsList');
+        const container = document.getElementById('dealsNotification');
+        list.innerHTML = "";
+        deals.forEach(deal => {
+          const item = document.createElement('li');
+          item.textContent = deal;
+          list.appendChild(item);
+        });
+        container.style.display = 'block';
+        document.getElementById('closeDeals').onclick = () => {
+          container.style.display = 'none';
+        };
+      }
+ 
       window.onload = () => {
         if ("geolocation" in navigator) {
           navigator.geolocation.getCurrentPosition((position) => {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-
-            storeLocations.forEach(store => {
-              const distance = calculateDistance(userLat, userLon, store.lat, store.lon);
-
-              if (distance < 50) {
-                const rewardModel = document.createElement('a-gltf-model');
-                rewardModel.setAttribute('class', 'clickable');
-                rewardModel.setAttribute('src', 'https://raw.githubusercontent.com/user-tania/AR_Phone/main/coin.glb');
-                rewardModel.setAttribute('scale', '2 2 2');
-                rewardModel.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 15000');
-                rewardModel.setAttribute('gps-entity-place', `latitude: ${store.lat}; longitude: ${store.lon}`);
-                
-                document.querySelector('a-scene').appendChild(rewardModel);
-
-                rewardModel.addEventListener('click', () => {
-                  if (store.rewardMessage) {
-                    alert(store.rewardMessage);
-                    localStorage.setItem(store.rewardId, 'true');
-                    updateWallet();
-                  }
-                });
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const reward = document.getElementById("reward");
+            const offset = 0.00009;
+            reward.setAttribute("gps-entity-place", `latitude: ${lat + offset}; longitude: ${lon}`);
+            document.getElementById('loadingScreen').style.display = 'none';
+ 
+            if (localStorage.getItem('rewardCollected') === 'true') {
+              reward.setAttribute('visible', 'false');
+              document.getElementById('count').innerText = 1;
+            }
+ 
+            reward.addEventListener("click", () => {
+              if (!rewardCollected) {
+                rewardCollected = true;
+                reward.setAttribute("visible", "false");
+                localStorage.setItem('rewardCollected', 'true');
+                document.getElementById("count").innerText = 1;
+                addXP(10);
+                const confetti = document.getElementById('confettiMessage');
+                confetti.style.display = 'block';
+                setTimeout(() => {
+                  confetti.style.display = 'none';
+                }, 3000);
               }
             });
-
-            document.getElementById('loadingScreen').style.display = 'none';
+ 
+            document.getElementById('walletButton').addEventListener('click', () => {
+              updateWallet();
+              document.getElementById('walletScreen').style.display = 'block';
+            });
+            document.getElementById('closeWalletButton').addEventListener('click', () => {
+              document.getElementById('walletScreen').style.display = 'none';
+            });
+ 
+            document.getElementById('leaderboardButton').addEventListener('click', () => {
+              updateLeaderboard();
+              document.getElementById('leaderboardScreen').style.display = 'block';
+            });
+            document.getElementById('closeLeaderboardButton').addEventListener('click', () => {
+              document.getElementById('leaderboardScreen').style.display = 'none';
+            });
           }, (err) => {
             console.error("Location error:", err);
             document.getElementById('loadingScreen').innerText = '⚠️ Location Error. Please enable GPS and refresh.';
-          }, {
-            enableHighAccuracy: true
-          });
+          }, { enableHighAccuracy: true });
         } else {
           document.getElementById('loadingScreen').innerText = '⚠️ Geolocation not supported by your browser.';
         }
-
-        // Wallet button functionality
-        document.getElementById('walletButton').addEventListener('click', () => {
-          updateWallet();
-          document.getElementById('walletScreen').style.display = 'block';
-        });
-
-        document.getElementById('closeWalletButton').addEventListener('click', () => {
-          document.getElementById('walletScreen').style.display = 'none';
-        });
+ 
+        showNearbyDeals(getFallbackDeals());
       };
     </script>
   </body>
