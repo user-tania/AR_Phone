@@ -1,339 +1,266 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Visa AR Rewards Gamified (with Rewards Wallet & Leaderboard!)</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Arial', sans-serif;
-      background: #000;
-    }
-    #loadingScreen {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      font-size: 24px;
-      padding: 20px 40px;
-      border-radius: 12px;
-      z-index: 20;
-      text-align: center;
-    }
-    #uiContainer {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: #1A1F71;
-      padding: 15px;
-      border-radius: 12px;
-      color: #FFB500;
-      font-size: 16px;
-      z-index: 10;
-      width: 240px;
-    }
-    #xpBarBackground {
-      background: #ccc;
-      height: 10px;
-      border-radius: 5px;
-      overflow: hidden;
-      margin-top: 5px;
-    }
-    #xpBarFill {
-      background: #FFB500;
-      height: 10px;
-      width: 0%;
-      border-radius: 5px;
-    }
-    #xpPopup {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #FFB500;
-      font-size: 30px;
-      display: none;
-      z-index: 20;
-      font-weight: bold;
-      animation: floatUp 1.5s ease forwards;
-    }
-    @keyframes floatUp {
-      0% { transform: translate(-50%, 0); opacity: 1; }
-      100% { transform: translate(-50%, -150px); opacity: 0; }
-    }
-    #confettiMessage {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 28px;
-      background: #FFB500;
-      color: #1A1F71;
-      padding: 20px 30px;
-      border-radius: 12px;
-      z-index: 20;
-      display: none;
-    }
-    #walletScreen,
-    #leaderboardScreen {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #1A1F71;
-      color: #FFB500;
-      padding: 30px;
-      z-index: 30;
-      font-size: 22px;
-    }
-    #walletScreen h2,
-    #leaderboardScreen h2 {
-      margin-top: 0;
-    }
-    .wallet-item {
-      margin: 10px 0;
-      padding: 15px;
-      background: #FFB500;
-      color: #1A1F71;
-      border-radius: 10px;
-    }
-    #walletButton, #leaderboardButton {
-      margin-top: 10px;
-      background: #FFB500;
-      color: #1A1F71;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #dealsNotification {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: #FFB500;
-      color: #1A1F71;
-      padding: 15px 20px;
-      border-radius: 10px;
-      z-index: 25;
-      max-width: 300px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      font-size: 16px;
-      display: none;
-    }
-    #dealsHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    #dealsHeader button {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #1A1F71;
-    }
-    #leaderboardList div {
-      margin: 10px 0;
-      padding: 10px;
-      background: #FFB500;
-      color: #1A1F71;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div id="loadingScreen">Loading AR Experience...</div>
-
-  <div id="uiContainer">
-    <div><strong>Level:</strong> <span id="level">1</span></div>
-    <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
-    <div id="xpBarBackground"><div id="xpBarFill"></div></div>
-    <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
-    <button id="walletButton">🎁 Open Wallet</button>
-    <button id="leaderboardButton">🏆 Open Leaderboard</button>
-  </div>
-
-  <div id="xpPopup">+10 XP!</div>
-  <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
-
-  <div id="walletScreen">
-    <h2>My Rewards Wallet 🎁</h2>
-    <div id="walletItems"></div>
-    <button id="closeWalletButton" style="margin-top:20px;">Close Wallet</button>
-  </div>
-
-  <div id="leaderboardScreen">
-    <h2>🏆 Leaderboard</h2>
-    <div id="leaderboardList"></div>
-    <button id="closeLeaderboardButton" style="margin-top:20px;">Close Leaderboard</button>
-  </div>
-
-  <div id="dealsNotification">
-    <div id="dealsHeader">
-      🔔 Deals Near You
-      <button id="closeDeals" title="Dismiss">✖</button>
+  <head>
+    <title>Visa AR Rewards Gamified (Final with Streaks)</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+        background: #000;
+      }
+      #loadingScreen, #xpPopup, #confettiMessage, #walletScreen, #leaderboardScreen, #dealsNotification {
+        position: absolute;
+        z-index: 20;
+      }
+      #loadingScreen {
+        top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.8);
+        color: #fff; font-size: 24px;
+        padding: 20px 40px; border-radius: 12px;
+        text-align: center;
+      }
+      #uiContainer {
+        position: absolute; top: 20px; left: 20px;
+        background: #1A1F71; padding: 15px;
+        border-radius: 12px; color: #FFB500;
+        font-size: 16px; z-index: 10;
+        width: 260px;
+      }
+      #xpBarBackground {
+        background: #ccc; height: 10px;
+        border-radius: 5px; overflow: hidden; margin-top: 5px;
+      }
+      #xpBarFill {
+        background: #FFB500; height: 10px; width: 0%; border-radius: 5px;
+      }
+      #xpPopup {
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        color: #FFB500; font-size: 30px;
+        display: none; font-weight: bold;
+        animation: floatUp 1.5s ease forwards;
+      }
+      @keyframes floatUp {
+        0% { transform: translate(-50%, 0); opacity: 1; }
+        100% { transform: translate(-50%, -150px); opacity: 0; }
+      }
+      #confettiMessage {
+        top: 40%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px; background: #FFB500;
+        color: #1A1F71; padding: 20px 30px;
+        border-radius: 12px; display: none;
+      }
+      #walletScreen, #leaderboardScreen {
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: #1A1F71; color: #FFB500;
+        padding: 30px; font-size: 22px;
+        display: none;
+      }
+      .wallet-item, #leaderboardList div {
+        margin: 10px 0; padding: 15px;
+        background: #FFB500; color: #1A1F71;
+        border-radius: 10px; font-weight: bold;
+      }
+      #walletButton, #leaderboardButton {
+        margin-top: 10px; background: #FFB500;
+        color: #1A1F71; padding: 10px 15px;
+        border: none; border-radius: 8px;
+        font-size: 16px; cursor: pointer;
+      }
+      #dealsNotification {
+        bottom: 20px; right: 20px;
+        background: #FFB500; color: #1A1F71;
+        padding: 15px 20px; border-radius: 10px;
+        max-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 16px; display: none;
+      }
+      #dealsHeader {
+        display: flex; justify-content: space-between;
+        align-items: center; font-weight: bold;
+        margin-bottom: 10px;
+      }
+      #dealsHeader button {
+        background: none; border: none;
+        font-size: 18px; cursor: pointer;
+        color: #1A1F71;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loadingScreen">Loading AR Experience...</div>
+    <div id="uiContainer">
+      <div><strong>Level:</strong> <span id="level">1</span></div>
+      <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
+      <div id="xpBarBackground"><div id="xpBarFill"></div></div>
+      <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
+      <div><strong>Daily Streak:</strong> <span id="streak">0</span> 🔥</div>
+      <button id="walletButton">🎁 Open Wallet</button>
+      <button id="leaderboardButton">🏆 Open Leaderboard</button>
     </div>
-    <ul id="dealsList"></ul>
-  </div>
-
-  <a-scene
-    vr-mode-ui="enabled: false"
-    embedded
-    arjs="sourceType: webcam; gpsMinAccuracy: 30; gpsTimeInterval: 1000;"
-  >
-    <a-camera gps-camera rotation-reader></a-camera>
-    <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-
-    <a-image
-      id="reward"
-      class="clickable"
-      src="https://github.com/user-tania/AR_Phone/raw/main/6043077-middle.png"
-      look-at="[gps-camera]"
-      scale="5 5 5"
-      rotation="0 0 0"
-      gps-entity-place="latitude: 0; longitude: 0"
-      animation="property: rotation; to: 0 360 0; loop: true; dur: 15000">
-    </a-image>
-  </a-scene>
-
-  <script>
-    let rewardCollected = false;
-    let xp = 0;
-    let level = 1;
-
-    function addXP(points) {
-      xp += points;
-      if (xp >= 100) {
-        xp -= 100;
-        level += 1;
-        document.getElementById('level').innerText = level;
+    <div id="xpPopup">+10 XP!</div>
+    <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
+    <div id="walletScreen">
+      <h2>My Rewards Wallet 🎁</h2>
+      <div id="walletItems"></div>
+      <button id="closeWalletButton">Close Wallet</button>
+    </div>
+    <div id="leaderboardScreen">
+      <h2>🏆 Leaderboard</h2>
+      <div id="leaderboardList"></div>
+      <button id="closeLeaderboardButton">Close Leaderboard</button>
+    </div>
+    <div id="dealsNotification">
+      <div id="dealsHeader">
+        🔔 Deals Near You <button id="closeDeals">✖</button>
+      </div>
+      <ul id="dealsList"></ul>
+    </div>
+    <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; gpsMinAccuracy: 30; gpsTimeInterval: 1000;">
+      <a-camera gps-camera rotation-reader></a-camera>
+      <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+      <a-gltf-model
+        id="reward"
+        class="clickable"
+        src="https://myrow11.github.io/3d/visa.glb"
+        scale="2 2 2"
+        look-at="[gps-camera]"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
+        gps-entity-place="latitude: 0; longitude: 0">
+      </a-gltf-model>
+    </a-scene>
+    <script>
+      let rewardCollected = localStorage.getItem('rewardCollected') === 'true';
+      let xp = parseInt(localStorage.getItem('xp') || '0');
+      let level = parseInt(localStorage.getItem('level') || '1');
+      let streak = parseInt(localStorage.getItem('streak') || '0');
+      const lastCollected = localStorage.getItem('lastCollected');
+      const today = new Date().toDateString();
+ 
+      if (lastCollected !== today) {
+        if (lastCollected === new Date(Date.now() - 86400000).toDateString()) {
+          streak++;
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem('lastCollected', today);
+        localStorage.setItem('streak', streak);
       }
-      document.getElementById('xpPoints').innerText = xp;
-      document.getElementById('xpBarFill').style.width = xp + "%";
-      const popup = document.getElementById('xpPopup');
-      popup.style.display = 'block';
-      popup.innerText = `+${points} XP!`;
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 1500);
-    }
-
-    function updateWallet() {
-      const walletItems = document.getElementById('walletItems');
-      walletItems.innerHTML = "";
-      if (localStorage.getItem('rewardCollected') === 'true') {
-        walletItems.innerHTML += `<div class="wallet-item">🎖️ Visa AR Reward</div>`;
-      } else {
-        walletItems.innerHTML += `<div>No rewards collected yet!</div>`;
+ 
+      document.getElementById('streak').innerText = streak;
+ 
+      function saveProgress() {
+        localStorage.setItem('xp', xp);
+        localStorage.setItem('level', level);
       }
-    }
-
-    function updateLeaderboard() {
-      const leaderboard = [
-        { name: "Alice", xp: 180 },
-        { name: "Bob", xp: 120 },
-        { name: "You", xp: xp },
-        { name: "Charlie", xp: 70 },
-      ];
-      leaderboard.sort((a, b) => b.xp - a.xp);
-      const list = document.getElementById('leaderboardList');
-      list.innerHTML = "";
-      leaderboard.forEach(player => {
-        const entry = document.createElement('div');
-        entry.textContent = `${player.name}: ${player.xp} XP`;
-        list.appendChild(entry);
-      });
-    }
-
-    function getFallbackDeals() {
-      return [
-        "💸 10% off at CoffeeExpress",
-        "🎮 2x Rewards at GameZone",
-        "🍔 Free drink with Visa at BurgerLab"
-      ];
-    }
-
-    function showNearbyDeals(deals) {
-      const list = document.getElementById('dealsList');
-      const container = document.getElementById('dealsNotification');
-      list.innerHTML = "";
-      deals.forEach(deal => {
-        const item = document.createElement('li');
-        item.textContent = deal;
-        list.appendChild(item);
-      });
-      container.style.display = 'block';
-      document.getElementById('closeDeals').onclick = () => {
-        container.style.display = 'none';
-      };
-    }
-
-    window.onload = () => {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const reward = document.getElementById("reward");
-
-          // 👇 No offset — spawn coin at exact user GPS
-          reward.setAttribute("gps-entity-place", `latitude: ${lat}; longitude: ${lon}`);
-          document.getElementById('loadingScreen').style.display = 'none';
-
-          if (localStorage.getItem('rewardCollected') === 'true') {
-            reward.setAttribute('visible', 'false');
-            document.getElementById('count').innerText = 1;
-          }
-
-          reward.addEventListener("click", () => {
-            if (!rewardCollected) {
-              rewardCollected = true;
-              reward.setAttribute("visible", "false");
-              localStorage.setItem('rewardCollected', 'true');
-              document.getElementById("count").innerText = 1;
-              addXP(10);
-              const confetti = document.getElementById('confettiMessage');
-              confetti.style.display = 'block';
-              setTimeout(() => {
-                confetti.style.display = 'none';
-              }, 3000);
+ 
+      function addXP(points) {
+        xp += points;
+        if (xp >= 100) {
+          xp -= 100;
+          level++;
+          document.getElementById('level').innerText = level;
+        }
+        saveProgress();
+        document.getElementById('xpPoints').innerText = xp;
+        document.getElementById('xpBarFill').style.width = xp + "%";
+        const popup = document.getElementById('xpPopup');
+        popup.innerText = `+${points} XP!`;
+        popup.style.display = 'block';
+        setTimeout(() => popup.style.display = 'none', 1500);
+      }
+ 
+      function updateWallet() {
+        const wallet = document.getElementById('walletItems');
+        wallet.innerHTML = rewardCollected ? '<div class="wallet-item">🎖️ Visa AR Reward</div>' : '<div>No rewards yet</div>';
+      }
+ 
+      function updateLeaderboard() {
+        const list = document.getElementById('leaderboardList');
+        const mock = [
+          { name: "Alice", xp: 180 },
+          { name: "Bob", xp: 120 },
+          { name: "You", xp: xp },
+          { name: "Charlie", xp: 70 }
+        ];
+        mock.sort((a, b) => b.xp - a.xp);
+        list.innerHTML = '';
+        mock.forEach((p, i) => {
+          const div = document.createElement('div');
+          div.textContent = `#${i + 1} ${p.name}: ${p.xp} XP`;
+          list.appendChild(div);
+        });
+      }
+ 
+      function showNearbyDeals(deals) {
+        const list = document.getElementById('dealsList');
+        list.innerHTML = '';
+        deals.forEach(deal => {
+          const li = document.createElement('li');
+          li.textContent = deal;
+          list.appendChild(li);
+        });
+        document.getElementById('dealsNotification').style.display = 'block';
+      }
+ 
+      document.addEventListener("DOMContentLoaded", () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById("reward").setAttribute("gps-entity-place", `latitude: ${latitude + 0.00009}; longitude: ${longitude}`);
+            document.getElementById('loadingScreen').style.display = 'none';
+ 
+            if (rewardCollected) {
+              document.getElementById('reward').setAttribute('visible', 'false');
+              document.getElementById('count').innerText = 1;
             }
+ 
+            document.getElementById('reward').addEventListener('click', () => {
+              if (!rewardCollected) {
+                rewardCollected = true;
+                localStorage.setItem('rewardCollected', 'true');
+                document.getElementById('reward').setAttribute('visible', 'false');
+                document.getElementById('count').innerText = 1;
+                addXP(10);
+                const msg = document.getElementById('confettiMessage');
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 3000);
+              }
+            });
+ 
+            document.getElementById('walletButton').onclick = () => {
+              updateWallet();
+              document.getElementById('walletScreen').style.display = 'block';
+            };
+            document.getElementById('closeWalletButton').onclick = () => {
+              document.getElementById('walletScreen').style.display = 'none';
+            };
+            document.getElementById('leaderboardButton').onclick = () => {
+              updateLeaderboard();
+              document.getElementById('leaderboardScreen').style.display = 'block';
+            };
+            document.getElementById('closeLeaderboardButton').onclick = () => {
+              document.getElementById('leaderboardScreen').style.display = 'none';
+            };
+            document.getElementById('closeDeals').onclick = () => {
+              document.getElementById('dealsNotification').style.display = 'none';
+            };
+          }, err => {
+            console.error(err);
+            document.getElementById('loadingScreen').innerText = '⚠️ Enable GPS and refresh.';
           });
-
-          document.getElementById('walletButton').addEventListener('click', () => {
-            updateWallet();
-            document.getElementById('walletScreen').style.display = 'block';
-          });
-          document.getElementById('closeWalletButton').addEventListener('click', () => {
-            document.getElementById('walletScreen').style.display = 'none';
-          });
-
-          document.getElementById('leaderboardButton').addEventListener('click', () => {
-            updateLeaderboard();
-            document.getElementById('leaderboardScreen').style.display = 'block';
-          });
-          document.getElementById('closeLeaderboardButton').addEventListener('click', () => {
-            document.getElementById('leaderboardScreen').style.display = 'none';
-          });
-        }, (err) => {
-          console.error("Location error:", err);
-          document.getElementById('loadingScreen').innerText = '⚠️ Location Error. Please enable GPS and refresh.';
-        }, { enableHighAccuracy: true });
-      } else {
-        document.getElementById('loadingScreen').innerText = '⚠️ Geolocation not supported by your browser.';
-      }
-
-      showNearbyDeals(getFallbackDeals());
-    };
-  </script>
-</body>
+        }
+ 
+        showNearbyDeals(["💸 10% off at CoffeeExpress", "🎮 2x Rewards at GameZone", "🍔 Free drink at BurgerLab"]);
+ 
+        document.getElementById('xpPoints').innerText = xp;
+        document.getElementById('level').innerText = level;
+        document.getElementById('xpBarFill').style.width = xp + '%';
+        document.getElementById('streak').innerText = streak;
+      });
+    </script>
+  </body>
 </html>
