@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Visa AR Rewards Gamified (Final with Streaks + Chatbot)</title>
+    <title>Visa AR Rewards Gamified</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
     <style>
@@ -17,10 +17,9 @@
       }
       #loadingScreen {
         top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.8);
-        color: #fff; font-size: 24px;
-        padding: 20px 40px; border-radius: 12px;
-        text-align: center;
+        background: rgba(0,0,0,0.8); color: #fff;
+        font-size: 24px; padding: 20px 40px;
+        border-radius: 12px; text-align: center;
       }
       #uiContainer {
         position: absolute; top: 20px; left: 20px;
@@ -120,33 +119,49 @@
   </head>
   <body>
     <div id="loadingScreen">Loading AR Experience...</div>
+ 
     <div id="uiContainer">
       <div><strong>Level:</strong> <span id="level">1</span></div>
-      <div><strong>XP:</strong> <span id="xpPoints">0</span>/100</div>
-      <div id="xpBarBackground"><div id="xpBarFill"></div></div>
+      <div><strong>XP:</strong> <span id="xpPoints">100</span>/100</div>
+      <div id="xpBarBackground"><div id="xpBarFill" style="width: 100%;"></div></div>
       <div><strong>Rewards Collected:</strong> <span id="count">0</span></div>
       <div><strong>Daily Streak:</strong> <span id="streak">0</span> 🔥</div>
       <button id="walletButton">🎁 Open Wallet</button>
       <button id="leaderboardButton">🏆 Open Leaderboard</button>
     </div>
+ 
     <div id="xpPopup">+10 XP!</div>
     <div id="confettiMessage">🎉 You Collected a Visa Reward!</div>
+ 
     <div id="walletScreen">
       <h2>My Rewards Wallet 🎁</h2>
       <div id="walletItems"></div>
+      <div id="donationSection" style="margin-top: 30px;">
+        <h3>🌱 Donate XP to Plant a Tree</h3>
+        <p>You can donate 50 XP to help plant a tree.</p>
+        <button id="donateButton">Donate 50 XP</button>
+        <p id="donationMessage" style="color: #0f0; display: none;">🌳 Thank you for your donation!</p>
+      </div>
       <button id="closeWalletButton">Close Wallet</button>
     </div>
+ 
     <div id="leaderboardScreen">
       <h2>🏆 Leaderboard</h2>
-      <div id="leaderboardList"></div>
+      <div id="leaderboardList">
+        <div>🥇 Alice - 500 XP</div>
+        <div>🥈 Bob - 420 XP</div>
+        <div>🥉 Charlie - 390 XP</div>
+      </div>
       <button id="closeLeaderboardButton">Close Leaderboard</button>
     </div>
+ 
     <div id="dealsNotification">
       <div id="dealsHeader">
         🔔 Deals Near You <button id="closeDeals">✖</button>
       </div>
       <ul id="dealsList"></ul>
     </div>
+ 
     <div id="chatbotButton">💬</div>
     <div id="chatbotContainer">
       <div id="chatMessages"></div>
@@ -169,5 +184,77 @@
         gps-entity-place="latitude: 0; longitude: 0">
       </a-gltf-model>
     </a-scene>
+ 
+    <script>
+      window.onload = () => {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('dealsNotification').style.display = 'block';
+      };
+ 
+      document.getElementById('walletButton').onclick = () => {
+        document.getElementById('walletScreen').style.display = 'block';
+      };
+      document.getElementById('closeWalletButton').onclick = () => {
+        document.getElementById('walletScreen').style.display = 'none';
+      };
+      document.getElementById('leaderboardButton').onclick = () => {
+        document.getElementById('leaderboardScreen').style.display = 'block';
+      };
+      document.getElementById('closeLeaderboardButton').onclick = () => {
+        document.getElementById('leaderboardScreen').style.display = 'none';
+      };
+      document.getElementById('closeDeals').onclick = () => {
+        document.getElementById('dealsNotification').style.display = 'none';
+      };
+ 
+      document.getElementById('chatbotButton').onclick = () => {
+        const container = document.getElementById('chatbotContainer');
+        container.style.display = container.style.display === 'flex' ? 'none' : 'flex';
+      };
+ 
+      const sampleDeals = [
+        "10% off at Green Café 🌿",
+        "BOGO at EcoMarket 🛍️",
+        "Free coffee with any purchase ☕"
+      ];
+      const dealsList = document.getElementById('dealsList');
+      sampleDeals.forEach(deal => {
+        const li = document.createElement('li');
+        li.textContent = deal;
+        dealsList.appendChild(li);
+      });
+ 
+      document.getElementById('donateButton').onclick = () => {
+        const xpEl = document.getElementById('xpPoints');
+        let xp = parseInt(xpEl.textContent);
+        if (xp >= 50) {
+          xp -= 50;
+          xpEl.textContent = xp;
+          document.getElementById('xpBarFill').style.width = `${xp}%`;
+          document.getElementById('donationMessage').style.display = 'block';
+          setTimeout(() => {
+            document.getElementById('donationMessage').style.display = 'none';
+          }, 3000);
+        } else {
+          alert("Not enough XP to donate.");
+        }
+      };
+ 
+      function sendChat() {
+        const input = document.getElementById('chatText');
+        const message = input.value;
+        if (message.trim() === "") return;
+        const chatBox = document.getElementById('chatMessages');
+        const userMessage = document.createElement('div');
+        userMessage.textContent = `You: ${message}`;
+        chatBox.appendChild(userMessage);
+        input.value = "";
+        setTimeout(() => {
+          const botReply = document.createElement('div');
+          botReply.textContent = `Bot: I'll get back to you on "${message}".`;
+          chatBox.appendChild(botReply);
+        }, 1000);
+      }
+    </script>
   </body>
 </html>
